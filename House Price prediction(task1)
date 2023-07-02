@@ -1,0 +1,34 @@
+# noinspection PyUnresolvedReferences
+import pandas as pd
+from influxdb import InfluxDBClient
+
+client = InfluxDBClient(host="localhost", port=8086)
+client.switch_database('homedata')
+
+# reading csv file
+
+
+df = pd.read_csv('housedata[1].csv', encoding='latin-1')
+
+# Print the data
+df.dropna(inplace=True)
+print(df.shape)
+
+for rwo_pk, row in df.iloc[1:].iterrows():
+    json_body = [{
+            'measurement': 'HomeDataNew',
+            'tags': {'city': row[16]},
+            'fields': {
+
+                  'city': row[16],
+                'price': row[2],
+                'sqft_living': row[5],
+                'sqft_lot': row[6],
+                'floors': row[7],
+
+                }
+         }]
+
+    client.write_points(json_body)
+    # noinspection PyTypeChecker
+    print("done")
